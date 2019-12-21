@@ -1,0 +1,5 @@
+name: PocketHorse
+main: net.pockethorse.PocketHorse
+api-version: 1.14
+version: 1.0
+author: GalaxyEye
