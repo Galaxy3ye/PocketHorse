@@ -66,7 +66,7 @@ public class Events implements Listener{
 					String infoData = lore.get(0).replace("\u00A7", "");
 					
 					if(infoData.substring(0, 18).equals("POCKETHORSE_SADDLE")){
-						event.getWhoClicked().sendMessage(ChatColor.RED+"Saddle is not empty!");
+						event.getWhoClicked().sendMessage(ChatColor.RED+"Der Sattel ist nicht leer!");
 						event.setCancelled(true);
 					}
 				}
@@ -152,7 +152,11 @@ public class Events implements Listener{
 					if(horse instanceof Horse){
 						ItemStack armor = ((Horse)horse).getInventory().getArmor();
 						if(armor!=null){
-							String armorName = armor.hasItemMeta() ? armor.getItemMeta().getDisplayName() : "";
+							//Fuer den Armornamen wird das Gleiche gemacht wie bei dem Reittiernamen
+							String armorName = PocketHorse.engDe.get(armor.getType().toString())+ChatColor.MAGIC;
+							if(armor.hasItemMeta() && armor.getItemMeta().getDisplayName().length()>0){
+								armorName = armor.getItemMeta().getDisplayName();
+							}
 							
 							lore.add(ChatColor.GRAY+"Name: "+armorName);
 							lore.add(ChatColor.GRAY+"Material: "+PocketHorse.engDe.get(armor.getType().toString()));
@@ -253,11 +257,11 @@ public class Events implements Listener{
 			//Prueft ob genug Platz zum spawnen ist
 			if(event.getClickedBlock().isPassable()){
 				if(!(world.getBlockAt(loc.add(0, 1, 0)).isPassable() && world.getBlockAt(loc.add(0, 1, 0)).isPassable())){
-					event.getPlayer().sendMessage(ChatColor.RED+"Not enough space!");
+					event.getPlayer().sendMessage(ChatColor.RED+"Nicht genug Platz!");
 					return;
 				}
 			}else if(event.getBlockFace()!=BlockFace.UP || !(world.getBlockAt(loc.add(0, 1, 0)).isPassable() && world.getBlockAt(loc.add(0, 1, 0)).isPassable() && world.getBlockAt(loc.add(0, 1, 0)).isPassable())){
-				event.getPlayer().sendMessage(ChatColor.RED+"Not enough space!");
+				event.getPlayer().sendMessage(ChatColor.RED+"Nicht genug Platz!");
 				return;
 			}
 			
@@ -334,6 +338,10 @@ public class Events implements Listener{
 				ItemStack armor = null;
 				if(lore.size()>9){
 					name = lore.get(9).substring(6);
+					//Prueft ob die Armor benannt ist
+					if(name.substring(name.length()-2).equals(""+ChatColor.MAGIC)){
+						name = "";
+					}
 					armor = new ItemStack(Material.valueOf(PocketHorse.deEng.get(lore.get(10).substring(10))));
 					
 					ItemMeta meta = null;
