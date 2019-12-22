@@ -20,7 +20,6 @@ import org.bukkit.entity.Horse;
 import org.bukkit.entity.Horse.Color;
 import org.bukkit.entity.Horse.Style;
 import org.bukkit.entity.Mule;
-import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -82,7 +81,7 @@ public class Events implements Listener{
 	 * enthaelt */
 	@EventHandler
 	public void onSaddleRemove(InventoryClickEvent event){
-		if(event.getInventory() instanceof CraftInventoryAbstractHorse){
+		if(event.getClickedInventory() instanceof CraftInventoryAbstractHorse){
 			if(event.getSlot()==0 && event.getCurrentItem().getType()==Material.SADDLE){
 				AbstractHorse horse = (AbstractHorse)event.getInventory().getHolder();
 				
@@ -338,6 +337,7 @@ public class Events implements Listener{
 					armor = new ItemStack(Material.valueOf(PocketHorse.deEng.get(lore.get(10).substring(10))));
 					
 					ItemMeta meta = null;
+					List<String> armorLore = null;
 					
 					armor.setDurability(Short.parseShort(lore.get(11).substring(9)));
 					if(lore.size()>12){
@@ -345,12 +345,13 @@ public class Events implements Listener{
 						for(int i=12;i<lore.size();i++){
 							if(lore.get(i).equals(ChatColor.GRAY+"Lore:")){
 								meta = armor.getItemMeta();
+								armorLore = new LinkedList<String>();
 								foundLore = true;
 								continue;
 							}
 							
 							if(foundLore){
-								meta.getLore().add(lore.get(i));
+								armorLore.add(lore.get(i));
 							}else{
 								int cut = 0;
 								for(int j=0;j<lore.get(i).length();j++){
@@ -369,6 +370,7 @@ public class Events implements Listener{
 						meta = armor.getItemMeta();
 					}
 					
+					meta.setLore(armorLore);
 					meta.setDisplayName(name);
 					armor.setItemMeta(meta);
 					
