@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -17,7 +18,6 @@ import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Donkey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
-import org.bukkit.entity.Horse.Color;
 import org.bukkit.entity.Horse.Style;
 import org.bukkit.entity.Mule;
 import org.bukkit.event.EventHandler;
@@ -30,6 +30,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class Events implements Listener{
 	
@@ -158,8 +159,14 @@ public class Events implements Listener{
 								armorName = armor.getItemMeta().getDisplayName();
 							}
 							
+							String armorColor = "FFFFFF";
+							if(armor.getItemMeta()!=null && armor.getItemMeta() instanceof LeatherArmorMeta){
+								armorColor = Integer.toHexString(((LeatherArmorMeta)armor.getItemMeta()).getColor().asRGB()).toUpperCase();
+							}
+							
 							lore.add(ChatColor.GRAY+"Name: "+armorName);
 							lore.add(ChatColor.GRAY+"Material: "+PocketHorse.engDe.get(armor.getType().toString()));
+							lore.add(ChatColor.GRAY+"Farbe: #"+armorColor);
 							lore.add(ChatColor.GRAY+"Schaden: "+armor.getDurability());
 							for(Enchantment e : armor.getEnchantments().keySet()){
 								lore.add(ChatColor.GRAY+PocketHorse.engDe.get(e.getKey().toString().substring(10))+": "+armor.getEnchantments().get(e));
@@ -290,7 +297,7 @@ public class Events implements Listener{
 						}
 					}
 					
-					((Horse)horse).setColor(Color.valueOf(PocketHorse.deEng.get(color)));
+					((Horse)horse).setColor(org.bukkit.entity.Horse.Color.valueOf(PocketHorse.deEng.get(color)));
 					((Horse)horse).setStyle(Style.valueOf(PocketHorse.deEng.get(style)));
 				}
 				
@@ -344,13 +351,15 @@ public class Events implements Listener{
 					}
 					armor = new ItemStack(Material.valueOf(PocketHorse.deEng.get(lore.get(10).substring(10))));
 					
+					int k = lore.get(11).contains("Farbe") ? 0 : 1;
+					
 					ItemMeta meta = null;
 					List<String> armorLore = null;
 					
-					armor.setDurability(Short.parseShort(lore.get(11).substring(9)));
-					if(lore.size()>12){
+					armor.setDurability(Short.parseShort(lore.get(12-k).substring(9)));
+					if(lore.size()>13-k){
 						boolean foundLore = false;
-						for(int i=12;i<lore.size();i++){
+						for(int i=13-k;i<lore.size();i++){
 							if(lore.get(i).equals(ChatColor.GRAY+"Lore:")){
 								meta = armor.getItemMeta();
 								armorLore = new LinkedList<String>();
@@ -381,6 +390,15 @@ public class Events implements Listener{
 					meta.setLore(armorLore);
 					meta.setDisplayName(name);
 					armor.setItemMeta(meta);
+					
+					if(armor.getItemMeta() instanceof LeatherArmorMeta){
+						String color = lore.get(11).substring(8);
+						if(!color.equals("FFFFFF")){
+							meta = armor.getItemMeta();
+							((LeatherArmorMeta)meta).setColor(Color.fromRGB(Integer.parseInt(color, 16)));
+						}
+						armor.setItemMeta(meta);
+					}
 					
 					((Horse)horse).getInventory().setArmor(armor);
 				}
